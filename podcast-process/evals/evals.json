@@ -1,0 +1,23 @@
+{
+  "skill_name": "podcast-process",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "extract health and focus info from this: https://pca.st/episode/4751a6",
+      "expected_output": "Skill triggers on pca.st URL + focused hint. Resolves URL to audio, checks transcript cache, transcribes via Whisper if missing, extracts ONLY items related to health/focus (skip unrelated insights), writes to ~/.claude/podcast-process/extractions/<date>-<slug>.md. Reports cost and item counts.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "what useful stuff is in this: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "expected_output": "Skill triggers on YouTube URL. Uses yt-dlp to extract audio, transcribes, runs generic extraction (no hint). If this specific URL is a music video, the extraction should return mostly empty categories — that is the correct answer, not hallucination.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "can you summarise this blog post for me: https://simonwillison.net/2026/03/agent-patterns/",
+      "expected_output": "Skill should NOT trigger. This is a blog post, not a podcast — use the `defuddle` skill or WebFetch instead. Transcription is pointless for text content.",
+      "files": []
+    }
+  ]
+}

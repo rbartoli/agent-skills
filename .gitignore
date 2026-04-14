@@ -1,0 +1,14 @@
+.DS_Store
+*.swp
+.env
+.envrc
+node_modules/
+
+# podcast-process runtime artifacts
+podcast-process/cache/
+podcast-process/transcripts/
+podcast-process/extractions/
+
+# conversation-harvester runtime artifacts
+conversation-harvester/manifest.json
+conversation-harvester/pending.md

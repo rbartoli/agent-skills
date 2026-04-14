@@ -1,0 +1,23 @@
+{
+  "skill_name": "rule-capture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ok no please stop always suggesting i add semicolons to every line. from now on in this project we go without. i'm using prettier with ASI.",
+      "expected_output": "Skill should propose a project-local rule (this codebase uses ASI, don't add semicolons), show the diff targeting ./CLAUDE.md, ask for approval, then write on 'y'. Rule should follow the format in references/rule-format.md including date and context quote.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "capture as a rule: before destructive git operations (reset --hard, force push, branch -D) always confirm with me first, even if you've been told to proceed once in the session.",
+      "expected_output": "Skill should recognize explicit capture request. Propose global rule at ~/.claude/CLAUDE.md. Rule text in imperative voice using user's wording. Show diff, ask approval.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "you know what nevermind the import path was fine, sorry for the back-and-forth",
+      "expected_output": "Skill should NOT trigger — this is a retraction, not a rule to capture. If auto-suggest is active, either skip entirely or just acknowledge without proposing a rule. No file writes.",
+      "files": []
+    }
+  ]
+}

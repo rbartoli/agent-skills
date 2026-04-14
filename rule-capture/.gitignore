@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+.env
+.envrc
+node_modules/
+rule-capture-workspace/

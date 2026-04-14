@@ -1,0 +1,47 @@
+{
+  "name": "rbartoli-agent-skills",
+  "description": "Agent skills for Claude Code — OSINT, podcast extraction, rule capture, conversation harvesting",
+  "owner": {
+    "name": "Riccardo Bartoli",
+    "url": "https://github.com/rbartoli"
+  },
+  "strict": false,
+  "plugins": [
+    {
+      "name": "osint",
+      "source": "./osint",
+      "description": "Structured OSINT investigations using public data. Four-phase workflow: scoping, passive recon, active enumeration, reporting. Progressive disclosure via reference playbooks.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["osint", "security", "recon", "reconnaissance", "investigation", "whois", "shodan", "subdomain"],
+      "category": "security"
+    },
+    {
+      "name": "podcast-process",
+      "source": "./podcast-process",
+      "description": "Transcribe podcast URLs (pca.st, Spotify, Apple, RSS, YouTube) and extract non-obvious insights, references, and action items. Whisper-based with local fallback.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["podcast", "transcription", "whisper", "extraction", "insights", "pocket-casts", "spotify"],
+      "category": "productivity"
+    },
+    {
+      "name": "rule-capture",
+      "source": "./rule-capture",
+      "description": "Capture durable behavioural rules from user corrections into CLAUDE.md (global, project, or subagent agents.md). Diff-and-approve flow with traceability back to what triggered each rule.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["claude", "claude-md", "rules", "self-improvement", "corrections", "feedback"],
+      "category": "workflow"
+    },
+    {
+      "name": "conversation-harvester",
+      "source": "./conversation-harvester",
+      "description": "Extract insights, decisions, references, and action items from past Claude Code session transcripts. Produces a staging file for human review before downstream routing.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["claude-code", "sessions", "harvest", "extraction", "history", "knowledge-management"],
+      "category": "productivity"
+    }
+  ]
+}

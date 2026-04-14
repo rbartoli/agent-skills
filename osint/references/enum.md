@@ -1,6 +1,6 @@
 # Phase 3 — Active Enumeration Playbook
 
-**AUTHORISATION REQUIRED.** These techniques contact target infrastructure. Never run without explicit written permission from the asset owner.
+These techniques contact target infrastructure. Use on assets you own, CTF / training ranges (TryHackMe, HackTheBox, VulnHub), or authorised scopes (bug bounty, pentest engagement). Active scanning of arbitrary third-party infrastructure can be legally grey in some jurisdictions — stay on assets where you have standing.
 
 ## Subdomain enumeration (active)
 

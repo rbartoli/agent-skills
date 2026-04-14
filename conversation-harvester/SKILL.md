@@ -1,11 +1,18 @@
 ---
 name: conversation-harvester
-description: Extract useful insights, decisions, questions, and references from past Claude Code sessions. Use when the user asks to "harvest sessions", "review past conversations", "extract insights from my Claude history", "find useful stuff from prior chats", or wants to surface knowledge that got buried in conversation logs. Produces a staging file for human review before anything is committed downstream.
+description: Extract useful insights, decisions, questions, and references from past Claude Code sessions so knowledge doesn't get buried in chat history. Use this skill whenever the user asks to "harvest sessions", "review past conversations", "extract insights from my Claude history", "find useful stuff from prior chats", "surface what I worked on last week", "recover that thing I figured out in a previous session", "mine my session archive", or says they keep losing track of what they decided in past conversations — even if they don't explicitly say "sessions" or "history". Produces a staging file for human review before anything is committed downstream.
 ---
 
 # Conversation Harvester
 
 Extracts insights from your Claude Code session transcripts. Writes results to a **staging file** — nothing is committed to any other location until you review and approve.
+
+## When NOT to use
+
+- User is asking about the **current** session's content — use scrollback or conversation context, not the harvester (which only reads completed sessions on disk)
+- User wants real-time tracking of what they work on — this is a batch tool that runs against history, not a live observer
+- User wants to summarise a single, specific session by ID — open that JSONL directly; the harvester is for extracting across many sessions
+- Sessions are stored somewhere other than `~/.claude/projects/` — this skill assumes the standard Claude Code layout
 
 ## Data sources
 

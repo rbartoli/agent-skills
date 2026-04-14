@@ -1,28 +1,28 @@
 ---
 name: osint
-description: Conduct open-source intelligence (OSINT) investigations using public data. Use when the user asks to investigate a domain, IP, username, email, image, or company from public sources; to map an organisation's attack surface; or to gather public background on an entity. Authorised investigations only — CTF, security research, journalism, defensive work. Not for stalking, doxxing, or targeting individuals without consent.
+description: Conduct open-source intelligence (OSINT) investigations using public data. Use this skill whenever the user asks to investigate, look up, research, profile, dig into, or find information about a domain, IP address, username, email, image, company, or public figure — even if they don't explicitly say "OSINT". Also trigger on "map the attack surface", "check my exposure", "background on X", "find out about Y", "who owns this", "what's running on this IP", "correlate this username across platforms", "dox myself to find what's leaked", "reverse-lookup this image", or "what does the internet know about this entity". Educational and research tool using publicly available data.
 ---
 
 # OSINT Investigation Skill
 
-Structured OSINT workflow for Claude Code. Investigates public information about domains, IPs, people, organisations, and digital assets — using only open sources.
+Structured OSINT workflow for Claude Code. Investigates public information about domains, IPs, people, organisations, and digital assets — using only open sources. Intended for learning, research, CTF challenges, journalism, and defensive work on your own assets.
 
 ## When to use
 
 - User names a target (domain, company, username, email, image) and asks to "investigate", "look up", "find info on", "map attack surface", or "background check"
-- CTF challenges involving reconnaissance
-- Security research on authorised targets (bug bounty scope, owned infrastructure)
-- Journalism / investigative research on public figures or organisations
-- Pre-engagement recon for penetration tests (with written authorisation)
+- CTF challenges and security training
+- Learning OSINT techniques hands-on
+- Background research on companies, public figures, or public-facing organisations
+- Defensive work on owned infrastructure
+- Journalism / investigative research
 
 ## When NOT to use
 
-- User cannot establish authorisation or legitimate purpose (ask once, then refuse)
-- Target is a private individual with no public role and no consent
-- Intent involves harassment, stalking, doxxing, or harm
-- Requested data is clearly behind legal access controls (not "public")
+- Intent is to harass, stalk, or dox a private individual
+- Requested data is behind authentication or legal access controls (not genuinely public)
+- Target is a private individual with no public role and no legitimate reason to investigate them
 
-If any of these apply, refuse clearly and explain why.
+These are ethical red lines, not permission gates — everything else is fair game.
 
 ## Workflow — four phases
 
@@ -32,11 +32,10 @@ Always work through phases in order. Summarise findings between phases so the us
 
 Before any tool runs, confirm:
 1. **Target** — exact asset (domain, IP range, username, email, image path)
-2. **Purpose** — why this investigation is authorised
-3. **Depth** — passive only (no contact with target) vs. active (DNS queries, port scans, etc.)
-4. **Output format** — report, timeline, raw findings, IOCs
+2. **Depth** — passive only (public records, no contact with target) vs. active (DNS queries, port scans, etc.)
+3. **Output format** — report, timeline, raw findings, IOCs
 
-Active techniques against infrastructure you don't own require explicit authorisation. Default to passive unless told otherwise.
+Active techniques against infrastructure you don't own can be legally grey in some jurisdictions (CFAA in the US, Computer Misuse Act in the UK, etc.). Default to passive unless working on assets you own, CTF ranges, or authorised engagements (bug bounty scope, pentest).
 
 ### Phase 2 — Reconnaissance (passive)
 
@@ -53,9 +52,9 @@ Gather baseline from public sources without touching the target's infrastructure
 
 See `references/recon.md` for commands, queries, and API notes.
 
-### Phase 3 — Enumeration (active, authorised only)
+### Phase 3 — Enumeration (active)
 
-Only after Phase 1 authorisation is confirmed.
+Touches target infrastructure. Use on assets you own, CTF ranges, or authorised scopes (bug bounty, pentest).
 
 | Technique | Tool |
 |-----------|------|
@@ -86,8 +85,7 @@ Never state weak signals as facts. Say "appears to be" when unsure.
 - **Store API keys in `.env`** — never inline in notes or commits
 - **Rate-limit all queries** to avoid tripping WAFs or getting IP-banned
 - **Tor / VPN** for sensitive recon — Shodan and others log query IPs
-- **Scope creep** — if you find something outside authorised scope, stop and ask before continuing
-- **Legal** — OSINT is legal in most jurisdictions when data is truly public. Scraping behind login, CFAA violations, and GDPR Article 6 issues exist — consult before publishing
+- **Legal context** — OSINT is legal in most jurisdictions when data is truly public. Scraping behind login, CFAA violations, and GDPR Article 6 issues still exist — consider these before publishing or taking action on findings
 
 ## Reusable prompts
 

@@ -1,6 +1,6 @@
-# claude-code-osint-skill
+# osint
 
-An **OSINT investigation skill** for [Claude Code](https://claude.com/claude-code). Gives Claude a structured, four-phase workflow for open-source intelligence: scoping, passive recon, active enumeration (authorised scopes only), and correlation/reporting.
+An **OSINT investigation skill** for [Claude Code](https://claude.com/claude-code). Gives Claude a structured, four-phase workflow for open-source intelligence: scoping, passive recon, active enumeration, and correlation/reporting.
 
 Built following [Anthropic's skill standards](https://docs.claude.com/en/docs/claude-code/skills) — progressive disclosure, explicit when-to-use gates, and authorisation-required framing for dual-use techniques.
 
@@ -19,15 +19,7 @@ Each phase has its own reference file loaded only when needed (progressive discl
 
 ## Installation
 
-One command — clone directly into your Claude Code skills directory:
-
-```bash
-git clone https://github.com/rbartoli/claude-code-osint-skill ~/.claude/skills/osint
-```
-
-To update later: `cd ~/.claude/skills/osint && git pull`.
-
-For project-level installation, clone into `<project>/.claude/skills/osint` instead.
+Part of [rbartoli/agent-skills](https://github.com/rbartoli/agent-skills) — install the whole marketplace or just this skill. See the root README for options.
 
 ## Usage
 
@@ -65,19 +57,19 @@ osint/                        ← clone target
 
 **APIs:** Shodan, Censys, SecurityTrails, VirusTotal, Have I Been Pwned, hunter.io.
 
-## Authorised use only
+## Ethical use
 
-This skill is intended for:
+This skill uses **publicly available data** and is intended for:
 
-- CTF challenges
-- Authorised penetration testing (written scope required)
-- Bug bounty programs
-- Defensive security research on owned assets
-- Journalism and investigative research on public figures/organisations
+- Learning OSINT techniques hands-on
+- CTF challenges and security training
+- Bug bounty programs and defensive security on owned assets
+- Journalism and investigative research on public-facing entities
+- General curiosity about how your own digital footprint looks
 
-It is **NOT** for stalking, doxxing, harassment, or targeting private individuals without consent. The skill's built-in "Phase 1 — Scoping" gate will refuse requests that can't establish legitimate authorisation.
+**Don't use it to** harass, stalk, or dox private individuals. That's the only hard line — everything else is fair game with common sense.
 
-Every technique here is legal when the data is genuinely public. Scraping behind login, CFAA violations, and GDPR concerns still exist — consult before publishing findings.
+Active scanning (Phase 3) touches infrastructure and can be legally grey in some jurisdictions (CFAA in the US, Computer Misuse Act in the UK). Use CTF ranges (TryHackMe, HackTheBox, VulnHub) for practice, and stay within scope for real engagements. The skill itself just documents techniques — what you run is up to you.
 
 ## Why a skill, not a platform?
 

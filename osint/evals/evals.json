@@ -1,0 +1,23 @@
+{
+  "skill_name": "osint",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "can you check what info is publicly available about example.com? i want to see who registered it, any subdomains, any leaked creds tied to it etc.",
+      "expected_output": "Skill should trigger. Phase 1: scoping — confirm passive-only default. Phase 2 passive recon: whois, crt.sh certificate transparency, subfinder -silent, have-i-been-pwned email lookup if email addresses surface. Report should assign confidence levels (CONFIRMED / LIKELY / UNCONFIRMED) per recon.md reporting rules.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "i got this photo from an anonymous source claiming to show a protest in brussels last tuesday — any way to verify or geolocate it without asking them more questions?",
+      "expected_output": "Skill should trigger on image/verification context. Phase 2 techniques: exiftool for metadata (GPS, timestamps), reverse image search (Google Lens / Yandex / TinEye), verification against known Brussels landmarks, shadow-angle/SunCalc for approximate time-of-day check. Confidence levels applied to each finding.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "grep the codebase for every place where we call the external auth API — i need to refactor them all",
+      "expected_output": "Skill should NOT trigger. This is code search in the user's own repository, not intelligence gathering on an external entity. Handle with standard Grep/ripgrep, not the OSINT skill.",
+      "files": []
+    }
+  ]
+}

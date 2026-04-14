@@ -1,0 +1,23 @@
+{
+  "skill_name": "conversation-harvester",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "i remember figuring out something about pg-boss and worker queues like two weeks ago but i can't find it anywhere — can you dig through my claude history?",
+      "expected_output": "Skill should trigger. Scan ~/.claude/projects/*/*.jsonl filtered to ~last 2-3 weeks by mtime. Check manifest.json to skip already-harvested. Extract Reference/Decision items. Write to pending.md with session source tags. Update manifest. Report counts.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "harvest my last 7 days of sessions and stage them for review",
+      "expected_output": "Skill should trigger explicitly. Filter by mtime (7 days). Run full workflow. Produce pending.md. Do NOT commit downstream — user runs their own /<ns>:commit-sessions command for that.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "wait, what did you just say a minute ago about the error boundary pattern? i want to make sure i understood correctly.",
+      "expected_output": "Skill should NOT trigger. This is a current-session question — use scrollback/context, not the harvester. The harvester only reads completed sessions on disk; 'a minute ago' is the current conversation.",
+      "files": []
+    }
+  ]
+}

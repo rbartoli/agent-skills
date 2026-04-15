@@ -1,129 +1,107 @@
 # podcast-process
 
-A Claude Code skill that turns a podcast URL into a structured extraction of **non-obvious insights, references, and action items**. Works across common podcast sources — Pocket Casts, Spotify, Apple, RSS, direct MP3, YouTube — via Whisper transcription and Claude-based extraction.
-
-## The problem this solves
-
-You hear something useful on a podcast, mean to come back to it, and the insight dies in "things I meant to follow up on". This skill captures it before that happens: paste the URL, get a structured extraction, review, keep what matters.
+A Claude Code skill that **finds a podcast's public transcript** and extracts structured insights from it. Paste a podcast URL, get back a markdown file of non-obvious insights, references, action items, and quotes.
 
 ## What it does
 
-When you share a podcast URL with a follow-up instruction ("extract info", "what did they say about X", "pull health tips from this"), the skill:
+When you share a podcast URL with an extraction instruction ("what did they say about X", "pull insights", "extract useful info"), the skill:
 
-1. Resolves the URL to an audio file (pca.st / Spotify / Apple / RSS / YouTube all handled)
-2. Transcribes via Whisper (caches transcripts — never re-pays for the same episode)
-3. Extracts Insights / References / Action items / Counter-arguments / Quotes
-4. Writes a structured markdown file to `~/.claude/podcast-process/extractions/`
+1. Identifies the podcast and episode from the URL
+2. Finds the public transcript (show website, YouTube auto-captions, Podscribe, web search)
+3. Extracts structured items from the transcript using Gemini (or Claude)
+4. Writes a markdown file to `~/.claude/podcast-process/extractions/`
 
-You review the extraction, keep what matters, route it wherever you keep your notes. A separate personal command can automate the routing step.
+## What it deliberately does NOT do
+
+- **No Whisper transcription.** This skill relies on public transcripts that already exist. Popular AI/tech/health podcasts publish them; long-tail indie podcasts often don't. For the rare podcast without a transcript, the skill stops and says so — it doesn't download audio and pay for Whisper.
+- **No audio downloads.** Transcripts are text.
+- **No API keys required** for the common case (Gemini CLI is free, transcripts are public). Claude Code's own credentials handle extraction if Gemini isn't installed.
+
+This keeps the skill simple, fast, and free. For the occasional podcast without a transcript, use a dedicated transcription tool.
 
 ## Installation
 
-```bash
-git clone https://github.com/rbartoli/podcast-process ~/.claude/skills/podcast-process
-```
+Part of [rbartoli/agent-skills](https://github.com/rbartoli/agent-skills) — see the root README for marketplace or manual install options.
 
-Update: `cd ~/.claude/skills/podcast-process && git pull`.
+## Required tools
 
-## Required keys
+- **`defuddle`** — fetches and cleans web pages (used to pull transcripts from show websites)
+- **`gemini` CLI** (recommended) — used for the extraction step (free, 1M+ context fits any transcript)
+- **`yt-dlp`** (optional) — only needed for falling back to YouTube auto-captions
 
-Create `~/.config/podcast-process/.env`:
-
-```bash
-OPENAI_API_KEY=sk-...        # Whisper transcription (~$0.006/min)
-ANTHROPIC_API_KEY=sk-ant-... # Extraction (or use Claude Code's own credentials)
-```
-
-No OpenAI key? The skill falls back to local `whisper.cpp` — slower but free.
+All three are easy to install and don't require API keys for basic use.
 
 ## Usage
 
-Just paste a URL with a request:
+Just share a URL with an instruction:
 
-- *"Extract useful info: https://pca.st/episode/abc123"*
-- *"What did the guest say about gut health on https://podcasts.apple.com/us/podcast/..."*
-- *"Pull insights from https://youtube.com/watch?v=xyz"*
+- *"Extract AI engineering insights from https://pca.st/episode/..."*
+- *"What did <guest> say about <topic> on this: <URL>"*
+- *"Pull insights from https://latent.space/p/..."*
+
+The skill will find the transcript and extract. If no transcript exists, it'll tell you and stop.
 
 ## Output
 
-Extractions land at `~/.claude/podcast-process/extractions/<date>-<slug>.md`:
+`~/.claude/podcast-process/extractions/<date>-<slug>.md`:
 
 ```markdown
-# Atomic Habits Revisited — The Tim Ferriss Show
+# Andrej Karpathy on Code Agents — No Priors
 
 **URL:** https://pca.st/episode/...
-**Duration:** 1:43:22
-**Host(s) / Guest(s):** Tim Ferriss, James Clear
-**Processed:** 2026-04-14
-**Extraction hint:** health and focus
+**Transcript URL:** https://no-priors.com/...
+**Host(s) / Guest(s):** Sarah Guo, Andrej Karpathy
+**Processed:** 2026-04-15
 
 ## Summary
-Two-sentence recap...
+...
 
 ## Insights
-- The 2-minute rule works because it bypasses...
+- ...
 
 ## References
-- *Atomic Habits* (Clear, 2018)
-- Huberman Lab episode on dopamine scheduling
+- ...
 
 ## Action items
-- Stack a new habit onto an existing morning routine...
+- ...
+
+## Counter-arguments
+- ...
 
 ## Quotes
-> "You do not rise to the level of your goals. You fall to the level of your systems."
+> "..."
 ```
 
 ## Structure
 
 ```
 podcast-process/
-├── README.md                       # this file
-├── LICENSE
-├── SKILL.md                        # workflow, triggers, safety rules
+├── README.md                      # this file
+├── SKILL.md                       # workflow, triggers, safety rules
 ├── references/
-│   ├── url-resolution.md           # pca.st / Spotify / Apple / YouTube resolution
-│   ├── extraction-prompts.md       # tuned prompts, category definitions
-│   └── transcription.md            # Whisper chunking, local fallback
+│   ├── transcript-sources.md      # per-podcast index of where transcripts live
+│   └── extraction-prompts.md      # the prompts + tuning guide
 └── evals/
-    └── evals.json                  # trigger + output test cases
+    └── evals.json                 # trigger + output test cases
 ```
 
-## Caching — the most important design choice
+## Known transcript sources
 
-Every step caches:
+The skill has an index of popular podcasts and where their transcripts live (Latent Space, No Priors, Lex Fridman, Tim Ferriss, Huberman, Acquired, The Changelog, etc.) — see `references/transcript-sources.md`.
 
-```
-~/.claude/podcast-process/
-├── cache/         # audio files (can be cleared — will re-download if needed)
-├── transcripts/   # transcribed text (KEEP — re-extraction is free once transcribed)
-└── extractions/   # final markdown (the valuable output)
-```
-
-**Never re-pay for transcription.** The skill always checks `transcripts/<slug>.txt` before calling Whisper. You can re-extract with different prompts or different hints for free once a transcript exists.
-
-## Cost estimates
-
-| Episode length | Whisper API | Claude extraction | Total |
-|----------------|:-----------:|:-----------------:|:-----:|
-| 30 min | $0.18 | ~$0.03 | ~$0.21 |
-| 60 min | $0.36 | ~$0.06 | ~$0.42 |
-| 2 hrs | $0.72 | ~$0.10 | ~$0.82 |
-| 3 hrs (MFM / Lex) | $1.08 | ~$0.15 | ~$1.23 |
-
-Extraction is cheap; transcription dominates. Re-extraction (different hint on cached transcript) costs only the extraction line — basically free.
+For unknown podcasts, it falls back to YouTube auto-captions (via `yt-dlp`), Podscribe search, or a general web search.
 
 ## Philosophy
 
-- **Extraction > summarisation.** You can find summaries anywhere. What's valuable is the specific non-obvious thing.
-- **Human review before routing.** Skill writes to staging; you decide what to keep.
-- **Cache aggressively.** Never re-pay for work already done.
-- **Fail gracefully.** Missing API keys → local fallback. Paywalled content → ask the user.
+- **Transcript-first, not audio-first.** 90% of the podcasts you'd want to extract from already have public transcripts. Don't reinvent transcription.
+- **Honest "no" over fabricated "yes".** If there's no transcript, tell the user. Never synthesise from episode titles or general knowledge.
+- **Cache aggressively.** Once you have the transcript text, re-extraction with a different hint is free.
+- **Human verification welcome.** Every extraction includes the transcript URL so the user can spot-check claims.
 
 ## Contributing
 
-PRs welcome. Especially useful: adding new URL source patterns (overcast.fm, castro.fm, etc.) to `references/url-resolution.md`.
+PRs welcome. The most useful contributions are adding podcasts to `references/transcript-sources.md` as you discover their transcript locations.
 
 ## License
 
-MIT — see `LICENSE`.
+MIT — see the [root LICENSE](../LICENSE).

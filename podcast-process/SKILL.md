@@ -1,151 +1,170 @@
 ---
 name: podcast-process
-description: Transcribe podcast episodes and extract useful insights. Use this skill whenever the user shares a podcast URL (Pocket Casts / pca.st, Spotify, Apple Podcasts, an RSS / MP3 link, or a YouTube podcast upload) and asks to "extract info", "pull insights", "summarise", "transcribe", "what's in this", "what did X say about Y", or gives any podcast URL with a follow-up instruction about what to learn from it — even if they don't explicitly say "podcast" or "transcribe". Also trigger if the user is processing daily notes or an inbox and encounters pending podcast URLs. Produces a structured extraction written to a staging file for human review and downstream routing.
+description: Find the public transcript of a podcast episode and extract useful insights, references, and action items from it. Use this skill whenever the user shares a podcast URL (Pocket Casts / pca.st, Spotify, Apple Podcasts, an RSS / MP3 link, or a YouTube podcast upload) and asks to "extract info", "pull insights", "summarise", "what's in this", "what did X say about Y", or gives any podcast URL with a follow-up instruction about what to learn from it — even if they don't explicitly say "podcast" or "transcript". Also trigger if the user is processing daily notes or an inbox and encounters pending podcast URLs. This skill is transcript-based: if no public transcript exists, it stops and tells the user rather than attempting audio transcription.
 ---
 
 # Podcast Process
 
-Turns a podcast URL into a structured extraction of non-obvious insights, references, and action items. Works across common podcast sources — Pocket Casts, Spotify, Apple, RSS, direct MP3, YouTube — via Whisper transcription and Claude-based extraction.
+Finds the public transcript of a podcast episode and runs a structured extraction against it. Produces a markdown file of non-obvious insights, references, action items, counter-arguments, and quotes — saved to a staging location for human review.
+
+**This skill does not transcribe audio.** It relies on transcripts that already exist online (show websites, Podscribe, YouTube captions, etc.). If no transcript can be found, the skill reports that and stops. Paying for Whisper transcription is out of scope — it adds cost and complexity for the rare case where no transcript exists. For those, use a dedicated transcription tool.
 
 ## When NOT to use
 
-- The user shares a blog post or article URL (use `defuddle` instead — it's cheaper and faster than transcription)
-- The user wants to transcribe their own voice note or meeting recording — this skill is tuned for third-party podcast content with extraction; a generic transcription tool is a better fit
-- The user shares a podcast URL but explicitly wants the full transcript, not extraction — this skill emphasises insight-extraction over verbatim transcription
+- The user shares a blog post or article URL — use `defuddle` instead
+- The user wants to transcribe their own voice note or meeting recording — use a dedicated transcription tool
 - The episode is behind a paywall the user can't bypass (e.g. private Patreon feed they don't subscribe to)
+- No public transcript exists and the user needs extraction urgently — tell them this skill can't help and suggest alternatives
 
 ## Workflow
 
-### 1. Resolve the URL to an audio file
+### 1. Identify the podcast and episode
 
-Different sources need different resolution paths. See `references/url-resolution.md` for specifics.
+From the URL, extract what you can about the show and episode:
 
-Quick reference:
+- **Podcast name** (e.g. "No Priors", "Latent Space", "My First Million")
+- **Episode title** (from metadata, page title, or show notes)
+- **Host and guest names** (often in the title or show description)
+- **Publish date**
 
-| Source pattern | Resolution |
-|----------------|-----------|
-| `pca.st/episode/...` | Follow redirects → show page has RSS / direct audio link in metadata |
-| `open.spotify.com/episode/...` | Spotify doesn't expose audio directly; use `spotdl` or resolve show to its RSS via Listen Notes / public RSS registry |
-| `podcasts.apple.com/.../id...` | Apple exposes the show's RSS in the page; find the episode in the RSS by title/date |
-| Direct `.mp3` / `.m4a` / RSS feed | Use directly |
-| `youtube.com/watch` | Use `yt-dlp -x --audio-format mp3 <url>` to extract audio |
+Use `defuddle` on the URL to pull the page's title/description metadata. This is your starting point for finding the transcript.
 
-Download the audio to `~/.claude/podcast-process/cache/<episode-slug>.mp3`. Skip download if cached.
+### 2. Find the transcript
 
-### 2. Transcribe
+See `references/transcript-sources.md` for a per-podcast index of known transcript locations. The common patterns:
 
-Default: OpenAI Whisper API (`whisper-1` model).
+| Source | Where to look |
+|--------|--------------|
+| Latent Space | `latent.space/p/<slug>` — swyx publishes full transcripts on every episode |
+| No Priors | `no-priors.com` / Substack — transcripts in episode posts |
+| My First Million | `shaanpuri.com` / Shaan's newsletter sometimes has edited highlights |
+| Lex Fridman | `lexfridman.com/<guest-name>` — full transcripts with timestamps |
+| Huberman Lab | `hubermanlab.com/podcast/<slug>` — full transcripts |
+| Tim Ferriss | `tim.blog/<year>/<month>/<day>/<slug>` — full transcripts |
+| YouTube podcast uploads | auto-captions via `yt-dlp --write-auto-subs --skip-download` (no API key needed) |
+| Unknown / long tail | Podscribe (`podscribe.com/search`), a web search for `"<episode title>" transcript`, or the show's own site |
+
+If `gemini` CLI is installed, ask it to find the transcript URL directly — it can web search and return a link. Verify the URL with `defuddle` before assuming it's correct.
+
+If no transcript is findable, **stop** and report clearly: *"No public transcript found for this episode. This skill relies on existing transcripts. Try asking the show directly or use a dedicated transcription tool."*
+
+### 3. Fetch the transcript
+
+Use `defuddle` to pull the transcript text:
 
 ```bash
-curl https://api.openai.com/v1/audio/transcriptions \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: multipart/form-data" \
-  -F file=@<audio-file> \
-  -F model=whisper-1 \
-  -F response_format=text > <cache>/transcript.txt
+defuddle parse <transcript-url> --md -o /tmp/transcript.md
 ```
 
-Cost: ~$0.006/minute. A 60-min episode = ~$0.36. Cache transcripts — never re-transcribe the same episode.
+Sanity-check: the file should be thousands of words, not a short blurb. If it's short, you probably fetched show notes, not the transcript — go back to step 2 and look harder.
 
-See `references/transcription.md` for longer files (>25MB — need chunking), language options, and a local `whisper.cpp` fallback if the user prefers offline.
+For YouTube auto-captions (no transcript on the show's site):
 
-### 3. Extract insights
+```bash
+yt-dlp --write-auto-subs --skip-download --sub-format vtt --sub-lang en -o '/tmp/%(id)s' <youtube-url>
+# then clean VTT timestamps into plain text
+```
 
-Read the extraction hint from the user's request. If they said:
+### 4. Extract
 
-- "Extract useful info" → use the generic prompt
-- "Extract X info" (e.g. "health and focus info") → use the focused prompt tuned to X
-- No hint, bare URL → default to generic + ask once what they're specifically after
+Read the extraction hint from the user's request. Apply the prompt from `references/extraction-prompts.md` — generic if no hint, focused if the user named a topic.
 
-The extraction prompt is in `references/extraction-prompts.md`. It produces items in these categories:
+The preferred extraction path is `gemini` CLI with the transcript passed inline, because:
+- Gemini's 1M+ context fits any full podcast transcript
+- It's free (or covered by the user's subscription)
+- One call produces structured output
 
-- **Insight** — non-obvious argument, counter-intuitive claim, or framework
-- **Reference** — book, person, paper, tool, quote worth remembering
+```bash
+TRANSCRIPT=$(cat /tmp/transcript.md)
+EXTRACTION_PROMPT=$(cat ~/.claude/skills/podcast-process/references/extraction-prompts.md)
+gemini -p "$EXTRACTION_PROMPT
+
+---
+
+Transcript below:
+
+$TRANSCRIPT" > /tmp/extraction.md
+```
+
+If `gemini` isn't available, use Claude API directly (Claude Code's own credentials).
+
+Extracted item categories:
+
+- **Insight** — non-obvious argument, counter-intuitive claim, or mental model
+- **Reference** — a specific book, person, paper, tool, library, framework, or fact worth keeping
 - **Action item** — a concrete thing the listener could do
-- **Counter-argument** — where the host / guest is likely wrong
-- **Quote** — verbatim line worth keeping
+- **Counter-argument** — where the host or guest is likely wrong (often empty; that's fine)
+- **Quote** — a verbatim line (≤40 words) worth remembering
 
-Only include items the user's extraction hint actually cares about. Don't force all categories into every output.
+Only include categories the user's extraction hint cares about.
 
-### 4. Write to staging
+### 5. Write to staging
 
-Write the extraction to `~/.claude/podcast-process/extractions/<YYYY-MM-DD>-<episode-slug>.md` with this structure:
+Write the extraction to `~/.claude/podcast-process/extractions/<YYYY-MM-DD>-<episode-slug>.md`:
 
 ```markdown
 # <Episode Title> — <Podcast Name>
 
 **URL:** <original URL>
-**Duration:** <mm:ss>
-**Host(s) / Guest(s):** <names if identifiable from transcript>
+**Transcript URL:** <where you found the transcript>
+**Host(s) / Guest(s):** <names>
 **Processed:** <YYYY-MM-DD>
 **Extraction hint:** <what the user asked for, or "generic">
 
 ## Summary (2-3 sentences)
 
-<plain-language summary of what the episode was about>
+<plain-language summary>
 
 ## Insights
-
 - ...
 
 ## References
-
 - ...
 
 ## Action items
+- ...
 
+## Counter-arguments
 - ...
 
 ## Quotes
 
 > "..." — <speaker>
 
-## Raw transcript
+## Source transcript
 
-<link or path to cached transcript.txt>
+<cached path or original URL>
 ```
 
-### 5. Report back
+### 6. Report back
 
 Tell the user:
 - Path to the extraction markdown
 - Count of items per category
-- Cost of the Whisper call (approximate)
-- Link to raw transcript if they want to read it
-
-If a downstream routing command exists (e.g. a personal `/obsidian:commit-podcast`), suggest running it. Otherwise the user can copy-paste the extraction to their note system manually.
+- Where the transcript came from (so they can verify claims)
+- If a downstream routing command exists (e.g. `/obsidian:commit-podcast`), suggest running it
 
 ## State & caching
 
 ```
 ~/.claude/podcast-process/
-├── cache/                    # downloaded audio (can be cleared, will re-download)
-│   └── <episode-slug>.mp3
-├── transcripts/              # transcribed text (keep — re-extraction is free once transcribed)
-│   └── <episode-slug>.txt
-└── extractions/              # final markdown outputs (the valuable ones)
+├── transcripts/           # cached transcripts (keep — extraction is free once you have the text)
+│   └── <episode-slug>.md
+└── extractions/           # final outputs
     └── <YYYY-MM-DD>-<slug>.md
 ```
 
-Never re-transcribe an episode you've already done. Check `transcripts/<slug>.txt` before calling Whisper.
-
-## Required keys
-
-- `OPENAI_API_KEY` — for Whisper. Load from `~/.config/podcast-process/.env` or the user's shell.
-- `ANTHROPIC_API_KEY` — for the extraction step (or use Claude Code's own credentials).
-
-If `OPENAI_API_KEY` is missing, offer the local `whisper.cpp` fallback (see `references/transcription.md`).
+Cache transcripts aggressively. Once you have the text, re-extraction with a different hint is essentially free.
 
 ## Safety
 
-- **Respect copyright** — transcription for personal analysis is fair use in most jurisdictions; don't republish transcripts
-- **Paywalled content** — if the episode is behind a paywall, check that the user has access before downloading
-- **API cost** — always show estimated cost before transcribing anything over 60 minutes
+- **Respect copyright** — transcripts are typically free to read but don't republish full transcripts as your own content
+- **Never fabricate a transcript** — if you can't find one, stop
+- **Flag verification concerns** — if the extraction relies on a transcript you couldn't verify (e.g. Gemini synthesised from its own knowledge rather than the actual transcript), note that clearly in the output
 
 ## Reference files
 
-- `references/url-resolution.md` — detailed URL → audio resolution for each source
+- `references/transcript-sources.md` — per-podcast index of known transcript locations + fallback search strategies
 - `references/extraction-prompts.md` — the prompts used, tuning guide, category definitions
-- `references/transcription.md` — Whisper chunking, local fallback, language options
 
-Load these only when the relevant phase needs them.
+Load on demand.

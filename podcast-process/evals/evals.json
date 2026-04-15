@@ -3,20 +3,26 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "extract health and focus info from this: https://pca.st/episode/4751a6",
-      "expected_output": "Skill triggers on pca.st URL + focused hint. Resolves URL to audio, checks transcript cache, transcribes via Whisper if missing, extracts ONLY items related to health/focus (skip unrelated insights), writes to ~/.claude/podcast-process/extractions/<date>-<slug>.md. Reports cost and item counts.",
+      "prompt": "extract AI coding agent insights from this: https://pca.st/episode/cc744c24-99d9-45eb-8fb6-fe68457af56b",
+      "expected_output": "Skill triggers. Identifies the episode (No Priors / Karpathy), searches transcript-sources.md → tries no-priors.com / Substack. Fetches the transcript via defuddle. Passes transcript to gemini with focused extraction prompt for AI coding agent insights. Writes to ~/.claude/podcast-process/extractions/<date>-<slug>.md. Does NOT invoke Whisper or any transcription service.",
       "files": []
     },
     {
       "id": 2,
-      "prompt": "what useful stuff is in this: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      "expected_output": "Skill triggers on YouTube URL. Uses yt-dlp to extract audio, transcribes, runs generic extraction (no hint). If this specific URL is a music video, the extraction should return mostly empty categories — that is the correct answer, not hallucination.",
+      "prompt": "what did tim ferriss' guest say about sleep on this episode: https://tim.blog/2024/10/15/matthew-walker-sleep/",
+      "expected_output": "Skill triggers. Identifies Tim Ferriss podcast (transcripts on tim.blog). The URL IS the transcript location already — fetch with defuddle directly. Extract sleep-focused insights. Skip generic insights that aren't about sleep.",
       "files": []
     },
     {
       "id": 3,
-      "prompt": "can you summarise this blog post for me: https://simonwillison.net/2026/03/agent-patterns/",
-      "expected_output": "Skill should NOT trigger. This is a blog post, not a podcast — use the `defuddle` skill or WebFetch instead. Transcription is pointless for text content.",
+      "prompt": "https://anchor.fm/some-random-indie-podcast/episodes/my-garage-band-vol-3-e123abc — pull insights",
+      "expected_output": "Skill triggers but cannot find a transcript (indie podcast, not in transcript-sources.md, no YouTube upload, no Podscribe coverage). Skill stops, tells the user clearly that no transcript exists, suggests alternatives (YouTube upload if available, dedicated transcription service). Does NOT fabricate content from the episode title. Does NOT attempt Whisper.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "can you summarise this blog post: https://simonwillison.net/2026/03/agent-patterns/",
+      "expected_output": "Skill does NOT trigger — this is a blog post, not a podcast. Use defuddle instead.",
       "files": []
     }
   ]

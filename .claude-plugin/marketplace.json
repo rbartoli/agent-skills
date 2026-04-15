@@ -19,10 +19,10 @@
     {
       "name": "podcast-process",
       "source": "./podcast-process",
-      "description": "Transcribe podcast URLs (pca.st, Spotify, Apple, RSS, YouTube) and extract non-obvious insights, references, and action items. Whisper-based with local fallback.",
-      "version": "0.1.0",
+      "description": "Find the public transcript of a podcast episode (pca.st, Spotify, Apple, Substack, show websites) and extract non-obvious insights, references, and action items. Transcript-first — no audio download, no Whisper, no API keys needed.",
+      "version": "0.2.0",
       "author": { "name": "Riccardo Bartoli" },
-      "keywords": ["podcast", "transcription", "whisper", "extraction", "insights", "pocket-casts", "spotify"],
+      "keywords": ["podcast", "transcript", "extraction", "insights", "gemini", "pocket-casts", "latent-space", "no-priors"],
       "category": "productivity"
     },
     {

@@ -7,7 +7,7 @@ A small marketplace of Claude Code skills I use daily. Each skill follows Anthro
 | Skill | What it does |
 |-------|--------------|
 | **[osint](./osint)** | Structured OSINT investigations using public data — four-phase workflow (scoping → passive recon → active enumeration → reporting) |
-| **[podcast-process](./podcast-process)** | Transcribe a podcast URL (pca.st / Spotify / Apple / RSS / YouTube) and extract non-obvious insights, references, and action items |
+| **[podcast-process](./podcast-process)** | Find a podcast's public transcript (show websites, YouTube captions, Podscribe) and extract non-obvious insights, references, and action items. No Whisper, no audio downloads, no API keys. |
 | **[rule-capture](./rule-capture)** | Capture durable behavioural rules from your corrections into `CLAUDE.md` / `agents.md` so the same mistake doesn't repeat next session |
 | **[conversation-harvester](./conversation-harvester)** | Mine past Claude Code session transcripts for insights, decisions, and references you'd otherwise lose |
 

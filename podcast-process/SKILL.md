@@ -146,13 +146,38 @@ Write the extraction to `~/.claude/podcast-process/extractions/<YYYY-MM-DD>-<epi
 <cached path or original URL>
 ```
 
-### 6. Report back
+### 6. Route the result
+
+Two paths depending on how the skill was invoked:
+
+**A. Invoked from an inbox/daily-notes task line** (e.g. user is triaging `Inbox.md` and asks to run the skill on `- [ ] **Task:** Extract useful info from <URL>`):
+
+Replace the originating task line in-place with a condensed extraction summary. Format:
+
+```markdown
+- **Reference:** <Episode title> — <Podcast name> (host info). Source: <URL> (from [[<original date>]])
+	- **<Insight 1 headline>** — one-line condensation
+	- **<Insight 2 headline>** — one-line condensation
+	- (3-6 bullets total; pick the highest-signal points)
+	- **Caveat:** <if extraction came from a non-verbatim source like a written summary, flag it>
+	- Full extraction (with quotes + counter-arguments): `<staging file path>`
+```
+
+The full extraction still gets written to staging at `~/.claude/podcast-process/extractions/<date>-<slug>.md` — that's where quotes, counter-arguments, and detail live. The inbox line just gets the condensed reference + a backlink.
+
+This closes the loop: the user invokes the skill from triage and gets the extraction *in the same place they started*, no separate routing step.
+
+**B. Invoked standalone** (user pastes a URL without inbox context):
+
+Just write the full extraction to staging. Tell the user the path and ask where they want it routed (or leave it for later).
+
+### 7. Report back
 
 Tell the user:
-- Path to the extraction markdown
-- Count of items per category
-- Where the transcript came from (so they can verify claims)
-- If a downstream routing command exists (e.g. `/obsidian:commit-podcast`), suggest running it
+- Path to the staging extraction markdown
+- For path A: confirmation that the inbox line was replaced
+- Where the transcript / source came from (so they can verify claims)
+- Any caveat about source quality (e.g. "extracted from a written summary, not verbatim")
 
 ## State & caching
 

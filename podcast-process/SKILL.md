@@ -77,7 +77,7 @@ The preferred extraction path is `gemini` CLI with the transcript passed inline,
 ```bash
 TRANSCRIPT=$(cat /tmp/transcript.md)
 EXTRACTION_PROMPT=$(cat ~/.claude/skills/podcast-process/references/extraction-prompts.md)
-gemini -p "$EXTRACTION_PROMPT
+timeout 90s gemini -p "$EXTRACTION_PROMPT
 
 ---
 
@@ -86,7 +86,17 @@ Transcript below:
 $TRANSCRIPT" > /tmp/extraction.md
 ```
 
-If `gemini` isn't available, use Claude API directly (Claude Code's own credentials).
+**Always wrap gemini calls in `timeout 90s`.** Gemini occasionally hangs silently on queries that trigger its web-search tool (observed: "find the URL of X" queries, "what does Y say in Z episode" queries). Without a timeout, the call can sit indefinitely while producing zero bytes of output. 90 seconds is enough for any legitimate extraction.
+
+### Fallback ladder when gemini fails or times out
+
+If the first gemini call returns empty / times out:
+
+1. **Retry once with a simpler prompt** — drop the extraction template, just ask: `timeout 60s gemini -p "Summarise this transcript and list 3 non-obvious insights: $TRANSCRIPT"`. Sometimes the full structured prompt triggers more tool-use than needed.
+2. **Switch to Claude API** — if gemini is broken for the session, call Claude directly via Claude Code's credentials (no gemini dependency).
+3. **Stop and report** — if both fail, tell the user clearly: *"Transcript fetched successfully (path: X) but extraction failed via gemini (timeout) and Claude (error). Here's the transcript URL — you can extract manually or retry later."* Never fabricate an extraction when the tools failed.
+
+If `gemini` isn't available at all, skip straight to Claude API (no retry ladder needed).
 
 Extracted item categories:
 

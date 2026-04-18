@@ -20,9 +20,9 @@ Structured OSINT workflow for Claude Code. Investigates public information about
 
 - Intent is to harass, stalk, or dox a private individual
 - Requested data is behind authentication or legal access controls (not genuinely public)
-- Target is a private individual with no public role and no legitimate reason to investigate them
+- Target is a private individual AND there is no legitimate reason (e.g., authorised PI work, journalism, due diligence, counterparty check, lost-contact reconnection)
 
-These are ethical red lines, not permission gates — everything else is fair game.
+These are ethical red lines, not permission gates — everything else is fair game. Lack of public profile alone is **not** a red line: legitimate investigators routinely target private individuals using only public data. Only refuse when intent is harmful or access would require breaking authentication/law.
 
 ## Workflow — four phases
 
@@ -34,6 +34,17 @@ Before any tool runs, confirm:
 1. **Target** — exact asset (domain, IP range, username, email, image path)
 2. **Depth** — passive only (public records, no contact with target) vs. active (DNS queries, port scans, etc.)
 3. **Output format** — report, timeline, raw findings, IOCs
+4. **Investigation context** — why the target matters (PI/background check, journalism, due diligence, CTF, etc.) — informs depth and source mix
+
+**Common-name disambiguation.** If the target is a person's name that likely resolves to many people (e.g., "John Smith"), do NOT refuse. Ask for disambiguators before running any search:
+
+- Approximate year of birth or age range
+- City / region / country of residence
+- Profession, employer, or industry
+- Known identifiers: social handle, domain, email, photo
+- Relationship or known-from (how the user encountered the target)
+
+Two or three selectors usually collapse ambiguity enough to proceed. If the user can't provide any, report the common-name problem and offer to proceed on whoever ranks highest in public-profile searches (flagging the uncertainty).
 
 Active techniques against infrastructure you don't own can be legally grey in some jurisdictions (CFAA in the US, Computer Misuse Act in the UK, etc.). Default to passive unless working on assets you own, CTF ranges, or authorised engagements (bug bounty scope, pentest).
 

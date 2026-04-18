@@ -64,6 +64,7 @@ Skip a session if any of these apply:
 - No assistant messages (user typed and quit)
 - Only contains a single system-level command (e.g. `/clear`, `/help`)
 - User explicitly blocked it (see `manifest.json` → `blocklist`)
+- **Implementation-heavy session** — ratio of assistant `text` blocks to `tool_use` blocks is below ~15%. These are sessions where the user delegated a concrete coding task; the output lives in the git history of the project, not in reusable insight. Harvesting them produces mostly dead-weight items describing shipped work. Exception: include if the user explicitly asked to harvest it.
 
 ### 4. Extract per session
 
@@ -74,14 +75,16 @@ For each remaining session:
 3. Pass to the extraction prompt in `references/extraction-prompt.md`
 4. Parse the response into structured items
 
-Extracted item categories:
+Extracted item categories (all **forward-looking only** — see `references/extraction-prompt.md` for the full rule):
 
-- **Task** — concrete action the user said they'd do but might've forgotten
-- **Idea** — exploratory thought worth keeping
-- **Reference** — link, quote, tool, library, pattern worth remembering
-- **Decision** — architectural or strategic choice made during the session, with reasoning
-- **Reflection** — personal observation about habits, preferences, working style
+- **Task** — concrete action the user said they'd do but has NOT yet done
+- **Idea** — exploratory thought or direction the user has not yet pursued
+- **Reference** — link, tool, library, pattern, or fact the user will consult in the future (not a description of code already shipped)
+- **Decision** — an open or pending choice where reasoning is captured but the choice has not yet been applied
+- **Reflection** — a forward-applicable self-observation that should change future behaviour (not post-hoc commentary on resolved events)
 - **Question** — open question the user raised that didn't get a satisfying answer
+
+Anything that describes work already shipped, decided, or abandoned belongs in git, not in the harvest. The extraction prompt enforces this as a hard filter.
 
 ### 5. Append to staging
 
@@ -133,6 +136,21 @@ The user reviews `pending.md` as plain markdown:
 - **Leave** lines that should be kept
 
 After review, the user runs their own "commit" command (the skill doesn't do this itself — it only produces the staging file). This keeps the skill generic and reusable: different users route committed items to different places (Obsidian, a journal file, a project notes folder, etc.).
+
+### Optional review helpers
+
+If a harvest run produces more than ~50 items, offer these passes before handing the staging file to the user. All are opt-in — the user can skip any or all.
+
+1. **Cross-session dedup.** When the same decision, open question, or reference appears in multiple sessions (common for long arcs like a feature evolution), collapse the restatements into one canonical item with session-ID provenance preserved in parentheses.
+
+2. **External-source dedup.** For each item, check whether an equivalent capture already exists outside the harvest:
+   - **Git log of the relevant project.** If the item describes work that has since landed — pull 3-5 distinctive keywords, run `git log --all --grep="<keyword>"` (or `git log --all -S"<symbol>"` for code references), strike items whose keywords appear in merged commits.
+   - **The user's downstream note destination** (Obsidian vault, journal file, project notes — wherever they route committed items). Strike items already captured there.
+   - **The user's memory/notes files** (e.g. `MEMORY.md`, CLAUDE.md). Strike items restating captured rules or facts.
+
+3. **Priority scoring + destination routing.** Score each survivor 1-5 on actionability × novelty × future-facing weight, then tag with a target destination file. Group the staging file by destination, ordered by priority, so the user can scan a destination at a time rather than 200 items as one flat list.
+
+Items these passes strike or flag should be marked inline (e.g. `_(struck — canonical source: path/to/file.md)_` or `[MERGE-CANDIDATE: path/to/file.md]`) rather than silently removed, so the user can veto during review.
 
 ## Options / invocations
 

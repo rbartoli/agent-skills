@@ -10,13 +10,15 @@ A compact session representation — user prompts, key assistant responses, and 
 
 > You are extracting useful information from a past Claude Code session transcript. Your job is to surface knowledge the user would want to keep — things that would otherwise be lost in chat history.
 >
+> **Core rule: forward-looking only.** The value of a harvested item is that the user can act on it, consult it, or decide from it *in the future*. If the work described is already done, shipped, committed, or abandoned, the item is dead weight — git log, commit messages, and the file tree are the canonical record of completed work. Harvest captures the residue that lives outside those records: open TODOs, unapplied decisions, reference material for work not yet started, unresolved questions.
+>
 > Extract items in these categories only:
 >
-> - **Task** — a concrete action the user said they'd do but might have forgotten
-> - **Idea** — an exploratory thought, concept, or direction worth remembering
-> - **Reference** — a link, quote, library, tool, pattern, or fact worth keeping
-> - **Decision** — an architectural, strategic, or technical choice made during the session, with the reasoning
-> - **Reflection** — a personal observation the user made about their habits, preferences, or working style
+> - **Task** — a concrete action the user said they'd do but has NOT yet done
+> - **Idea** — an exploratory thought, concept, or direction the user has not yet pursued
+> - **Reference** — a link, quote, library, tool, pattern, or fact the user will want to consult in the future (not a description of code they already wrote)
+> - **Decision** — an open or pending choice where the reasoning is captured but the choice has not yet been applied
+> - **Reflection** — a forward-applicable self-observation about habits or working style that should change behaviour in future sessions (not a post-hoc commentary on a resolved episode)
 > - **Question** — an unresolved question the user raised that didn't get a satisfying answer
 >
 > Each extracted item must be:
@@ -24,14 +26,20 @@ A compact session representation — user prompts, key assistant responses, and 
 > - Specific and actionable (no vague generalities)
 > - Grounded in what was actually discussed (no inference beyond the transcript)
 > - Self-contained (readable without access to the session)
+> - **Future-facing** — the item would still be useful six months from now to someone who wasn't in the session
 >
 > **Do NOT extract:**
 >
-> - Routine file edits or code changes (those are in git)
+> - Completed tasks, even when the transcript spells out the fix (those are in commits — often with a PR or hash reference that signals "done")
+> - Shipped implementation details: root-cause write-ups, race-condition fixes, specific code snippets that now live in the codebase
+> - Decisions that have already been applied (e.g. "chose X over Y for project Z" — if Z is using X, the decision is in the code)
+> - Post-hoc reflections on events that have been resolved ("under time pressure I pivoted to tool X" — if the pivot worked and is in the past, there is nothing to act on)
+> - Routine file edits, code changes, debugging churn that produced no reusable insight
 > - Error messages and their fixes (those are in commits)
-> - Back-and-forth debugging that didn't produce a reusable insight
 > - Anything that looks like an API key, token, password, private key, or credential
 > - Personal identifying information about third parties (emails, phone numbers, addresses) that wasn't already public
+>
+> **Test for each item before emitting:** "If the user never opens this session again, does this item give them something to DO, CONSULT, or DECIDE that isn't already captured in their codebase?" If no → drop it.
 >
 > **Format output as JSON:**
 >

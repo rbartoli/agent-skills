@@ -167,6 +167,14 @@ Items these passes strike or flag should be marked inline (e.g. `_(struck — ca
 - **Write `pending.md` atomically** (write to temp, rename) so a partial failure doesn't corrupt the staging file.
 - **Respect privacy** — some sessions may contain API keys, passwords, or personal data the user pasted during debugging. The extraction prompt in `references/extraction-prompt.md` includes rules to redact these; honour them.
 
+## Gotchas
+
+- Don't extract items that describe work already shipped. If it's in git history, it doesn't belong in the harvest — the extraction prompt enforces this, but watch for it when reviewing staging output.
+- Don't skip the manifest update after extracting. A crash between extraction and manifest write causes duplicate items on the next run — always update atomically.
+- Don't harvest today's active session. The JSONL is still being appended to; reading it mid-session produces partial results and can lock/race with the running Claude process.
+- Don't treat high tool-use sessions as insight-rich. Sessions where the assistant ratio of text to tool_use is below ~15% are implementation grunt-work — the interesting decisions live in git commits, not the chat.
+- Don't surface API keys, tokens, or credentials that appeared in debugging context. Redact aggressively — the extraction prompt has rules for this, but double-check staging before handing it to the user.
+
 ## Reference files
 
 - `references/extraction-prompt.md` — the full prompt used to extract items from a session

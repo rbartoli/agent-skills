@@ -1,6 +1,6 @@
 {
   "name": "rbartoli-agent-skills",
-  "description": "Agent skills for Claude Code — OSINT, podcast extraction, rule capture, conversation harvesting",
+  "description": "Agent skills for Claude Code — OSINT, podcast extraction, rule capture, conversation harvesting, back-pocket problem matching, rapid prototyping",
   "owner": {
     "name": "Riccardo Bartoli",
     "url": "https://github.com/rbartoli"
@@ -42,6 +42,24 @@
       "author": { "name": "Riccardo Bartoli" },
       "keywords": ["claude-code", "sessions", "harvest", "extraction", "history", "knowledge-management"],
       "category": "productivity"
+    },
+    {
+      "name": "back-pocket-check",
+      "source": "./back-pocket-check",
+      "description": "Implements Feynman's 12 favorite problems technique. Silently tests new concepts against the user's unsolved problems list; surfaces a one-line note only when a real match exists. Silent on no-match by design.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["feynman", "problems", "matching", "insight", "serendipity", "mental-models"],
+      "category": "thinking"
+    },
+    {
+      "name": "extreme-prototype",
+      "source": "./extreme-prototype",
+      "description": "Rapid parallel prototyping — generates 3-5 maximally divergent implementations of a concept, runs them all, evaluates side-by-side, and lets the user pick a winner to develop further.",
+      "version": "0.1.0",
+      "author": { "name": "Riccardo Bartoli" },
+      "keywords": ["prototype", "rapid", "parallel", "divergent", "exploration", "design"],
+      "category": "development"
     }
   ]
 }

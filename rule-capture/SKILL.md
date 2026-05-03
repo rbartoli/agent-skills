@@ -126,6 +126,15 @@ CLAUDE.md is loaded on every session — every rule has a context cost. Keep the
 - **User asks to capture multiple rules at once**: process sequentially, diff-and-approve each one individually
 - **Unclear scope**: default to global, note the assumption in the approval diff
 
+## Gotchas
+
+- Don't write a rule without showing the diff and getting explicit `y`. The whole point of the approval step is that the user owns their CLAUDE.md — never auto-append, even if you're "sure" they'd approve.
+- Don't capture one-off situational fixes as rules. "Don't add that comment **here**" is about one line of code, not a general preference. Only capture if the correction generalizes.
+- Don't let CLAUDE.md bloat with near-duplicate rules. Before appending, scan existing rules — if one already covers the same ground, propose updating it rather than adding another.
+- Don't write vague rules. "Be careful with files" means nothing actionable. The rule must be specific enough that a future session can mechanically comply without judgment calls.
+- Don't default to project-local when the rule is clearly global. If the user says "stop doing X" without mentioning "in this project", it's almost always a general preference — ask if genuinely ambiguous.
+- Don't skip the "Why" field. Without it, the rule can't be judged in edge cases — future sessions will either over-apply or under-apply it.
+
 ## Reference files
 
 - `references/scope-selection.md` — edge cases for picking the target file (monorepos, worktrees, subagents, missing files)

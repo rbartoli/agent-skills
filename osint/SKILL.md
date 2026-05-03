@@ -105,6 +105,15 @@ Never state weak signals as facts. Say "appears to be" when unsure.
 - *"Verify claims in <article URL>"* — cross-references named entities against public records
 - *"Correlate <username> across platforms"* — Sherlock + Namechk + custom search
 
+## Gotchas
+
+- Don't run active enumeration (Phase 3) on infrastructure you don't own without confirmed authorization. Default to passive — escalating to active requires the user to explicitly say they own the target, have a bug bounty scope, or are on an authorized engagement.
+- Don't state weak signals as facts. A single WHOIS match or one Shodan result is `LIKELY`, not `CONFIRMED`. Multiple independent sources are required for confirmation.
+- Don't skip the common-name disambiguation step for people. "John Smith" without selectors will waste time on wrong targets and pollute your report with noise.
+- Don't query APIs without rate-limiting. Shodan, SecurityTrails, and crt.sh will ban your IP if you hammer them. Space requests and respect 429s.
+- Don't forget that Shodan and similar services log your query IP. If the investigation target could trace queries back to the user, recommend Tor/VPN before running lookups.
+- Don't present findings without a confidence label. Every claim needs `CONFIRMED`, `LIKELY`, or `UNCONFIRMED` — unlabelled findings create false certainty.
+
 ## Progressive disclosure
 
 For tool-specific commands, API authentication, and advanced techniques, load from:

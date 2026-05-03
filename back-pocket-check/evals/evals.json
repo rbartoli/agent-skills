@@ -1,0 +1,26 @@
+{
+  "skill_name": "back-pocket-check",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just read a paper claiming that early Ethereum wallets generated with the JavaScript Math.random() function on certain browsers had massively reduced entropy — the keyspace was effectively ~32 bits instead of 256. The authors estimate maybe 0.5%-1% of pre-2014 wallets are vulnerable. Curious what you make of this.",
+      "expected_output": "Skill triggers, reads back-pocket file, and surfaces a match against 'bitcoin private keys discovery' — even though the paper is about Ethereum, the entropy-collapse mechanism is directly applicable to any blockchain whose seeds were generated with the same broken RNG. Should be a clean one-line surface in the format '📎 Back-pocket: this might apply to ...'.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "prompt": "What's the weather like today?",
+      "expected_output": "Skill should NOT engage. Trivial conversational input, no new concept, no tool-shape. Claude should answer the question normally without surfacing any back-pocket reference and without mentioning the skill or the back-pocket file.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "prompt": "I keep coming back to this idea from Karpathy — he calls it the 'ratchet loop.' The agent proposes a change, runs a 5-minute experiment, measures the metric. If the metric improves, git commit; if not, git reset. Treats git as agent memory. I love how cheap this makes experimentation.",
+      "expected_output": "Skill triggers and reads back-pocket file. Given the current back-pocket only contains 'bitcoin private keys discovery', the ratchet loop doesn't plausibly apply, so the skill should stay silent. Tests the silent-on-no-match rule under a substantive trigger.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

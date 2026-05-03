@@ -197,6 +197,15 @@ Cache transcripts aggressively. Once you have the text, re-extraction with a dif
 - **Never fabricate a transcript** — if you can't find one, stop
 - **Flag verification concerns** — if the extraction relies on a transcript you couldn't verify (e.g. Gemini synthesised from its own knowledge rather than the actual transcript), note that clearly in the output
 
+## Gotchas
+
+- Don't fabricate a transcript. If no public transcript exists, stop and say so — never synthesize from memory or web summaries. The whole value of this skill is grounded extraction from verbatim text.
+- Don't skip the sanity check after fetching. If the "transcript" is under 500 words, you probably grabbed show notes or a stub page, not the real transcript — go back and look harder.
+- Don't forget to wrap `gemini` calls in `timeout 90s`. Gemini hangs silently on certain queries that trigger its web-search tool. Without the timeout, the skill blocks indefinitely.
+- Don't confuse a written summary (blog post recap) with a verbatim transcript. If the source is an edited summary rather than full speaker dialogue, flag this clearly in the output — the extraction quality is lower.
+- Don't extract from auto-captions without noting the quality caveat. YouTube auto-subs have ~90% accuracy; names, technical terms, and numbers are often garbled.
+- Don't dump the full extraction into an inbox task line. When invoked from triage, replace with a condensed 3-6 bullet summary and link to the full staging file — the inbox needs to stay scannable.
+
 ## Reference files
 
 - `references/transcript-sources.md` — per-podcast index of known transcript locations + fallback search strategies

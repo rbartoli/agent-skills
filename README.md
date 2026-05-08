@@ -7,6 +7,7 @@ A small marketplace of Claude Code skills I use daily. Each skill follows Anthro
 | Skill | What it does |
 |-------|--------------|
 | **[osint](./osint)** | Structured OSINT investigations using public data — four-phase workflow (scoping → passive recon → active enumeration → reporting) |
+| **[x-twitter-scraper](./x-twitter-scraper)** | Search tweets, get profile tweets, export followers, download media, post tweets and replies, manage webhooks, and use MCP or SDK workflows |
 | **[podcast-process](./podcast-process)** | Find a podcast's public transcript (show websites, YouTube captions, Podscribe) and extract non-obvious insights, references, and action items. No Whisper, no audio downloads, no API keys. |
 | **[rule-capture](./rule-capture)** | Capture durable behavioural rules from your corrections into `CLAUDE.md` / `agents.md` so the same mistake doesn't repeat next session |
 | **[conversation-harvester](./conversation-harvester)** | Mine past Claude Code session transcripts for insights, decisions, and references you'd otherwise lose |
@@ -18,6 +19,7 @@ A small marketplace of Claude Code skills I use daily. Each skill follows Anthro
 ```
 /plugin marketplace add https://github.com/rbartoli/agent-skills
 /plugin install osint@rbartoli-agent-skills
+/plugin install x-twitter-scraper@rbartoli-agent-skills
 /plugin install podcast-process@rbartoli-agent-skills
 /plugin install rule-capture@rbartoli-agent-skills
 /plugin install conversation-harvester@rbartoli-agent-skills

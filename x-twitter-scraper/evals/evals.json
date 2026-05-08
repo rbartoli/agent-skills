@@ -1,0 +1,29 @@
+{
+  "skill_name": "x-twitter-scraper",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "build a script that searches Twitter for posts mentioning our launch and exports the tweet text, author, likes, reposts, and URL",
+      "expected_output": "Skill should trigger. Use tweet search or advanced Twitter search through Xquik, require XQUIK_API_KEY from the environment, include pagination for more than one page, and output a CSV-ready result shape.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "get the last 100 tweets from this profile and download any attached images or videos",
+      "expected_output": "Skill should trigger. Use profile tweets or user media workflows, include rate-limit and pagination handling, and collect media URLs without printing credentials.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "post this reply from my connected account: thanks for the feedback, we just shipped the fix",
+      "expected_output": "Skill should trigger but require explicit approval before any write action. Restate the account, reply target, text, and action before sending.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "find the registration date for example.com and list its subdomains",
+      "expected_output": "Skill should NOT trigger. This is general OSINT on a domain, so the OSINT skill is a better fit.",
+      "files": []
+    }
+  ]
+}

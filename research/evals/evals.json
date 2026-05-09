@@ -1,0 +1,23 @@
+{
+  "skill_name": "research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Research standing desks under £500 — compare Flexispot E7 Plus vs IKEA BEKANT vs Autonomous SmartDesk. I need specs, stability reviews, and which one is best for a home office.",
+      "expected_output": "Structured comparison table with specs (height range, weight capacity, motor type, price), synthesis of review sentiment for each, bottom-line recommendation with reasoning, sourced claims",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/research what's the current state of MCP (Model Context Protocol)? Is it actually being adopted or is it hype? I want to understand if I should invest time building MCP servers for my projects.",
+      "expected_output": "Deep-dive brief covering: what MCP is, adoption metrics (GitHub stars, ecosystem size, major adopters), practitioner sentiment (positive and negative), comparison with alternatives, recommendation for the user's context (personal projects, Claude Code user), sourced claims",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Research earbuds with long battery life — my current ones die after 2 hours. Budget around £100-150. I mostly use them for podcasts and calls while walking.",
+      "expected_output": "Comparison of 3-5 options with battery life specs, comfort for walking, microphone quality for calls, price, bottom-line pick. Should distinguish case battery vs earbud battery. Sourced from reviews.",
+      "files": []
+    }
+  ]
+}

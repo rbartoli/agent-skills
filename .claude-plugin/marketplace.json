@@ -17,6 +17,15 @@
       "category": "security"
     },
     {
+      "name": "x-twitter-scraper",
+      "source": "./x-twitter-scraper",
+      "description": "Xquik skill for tweet search, advanced Twitter search, profile tweets, follower export, media download, posting, replies, webhooks, MCP, and SDK workflows.",
+      "version": "0.1.0",
+      "author": { "name": "Xquik-dev" },
+      "keywords": ["twitter", "x-api", "tweet-search", "twitter-scraper", "follower-export", "profile-tweets", "social-media-automation", "mcp"],
+      "category": "data"
+    },
+    {
       "name": "podcast-process",
       "source": "./podcast-process",
       "description": "Find the public transcript of a podcast episode (pca.st, Spotify, Apple, Substack, show websites) and extract non-obvious insights, references, and action items. Transcript-first — no audio download, no Whisper, no API keys needed.",
